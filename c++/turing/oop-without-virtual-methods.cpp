@@ -1,49 +1,9 @@
-#include <iostream>
-#include <cstdlib>
 #include <stdexcept>
-#include <chrono>
+#include <cmath>
+
+#include "common.h"
 
 using namespace std;
-using namespace std::chrono;
-
-#define CASES (100000)
-#define MAX_VALUE (0xffff)
-
-#define MAX_BAND_SIZE (MAX_VALUE + 1)
-
-#define SEED (1337)
-
-int inputs[CASES];
-bool results[CASES];
-
-bool isBinaryPalindrome(int input) {
-    int numberOfDigits = input == 0 ? 1 : static_cast<int>(floor(log2(input)) + 1);
-
-    for (int i = 0; i < numberOfDigits / 2; i++) {
-        if (((input & (1 << i)) ? 1 : 0) != ((input & (1 << (numberOfDigits - i - 1))) ? 1 : 0)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void resetTestData() {
-    srand(SEED);
-
-    for (int i = 0; i < CASES; i++) {
-        inputs[i] = rand() % (MAX_VALUE + 1);
-        results[i] = isBinaryPalindrome(inputs[i]);
-    }
-}
-
-enum Direction {
-    LEFT, RIGHT
-};
-
-enum Symbol {
-    UNDEFINED, TRUE, FALSE
-};
 
 class Transition {
 public:
@@ -58,37 +18,10 @@ public:
     }
 };
 
-class StateMachine {
-protected:
+class PalindromeRecognizer {
+private:
     int state;
 
-    virtual int getInitialState() = 0;
-    virtual Transition getNext(int state, Symbol symbolRead) = 0;
-    virtual bool reject(int state) = 0;
-    virtual bool accept(int state) = 0;
-
-public:
-    void reset() {
-        state = getInitialState();
-    }
-
-    Transition getNext(Symbol symbolRead) {
-        auto transition = getNext(state, symbolRead);
-        state = transition.state;
-
-        return transition;
-    }
-
-    bool reject() {
-        return reject(state);
-    }
-
-    bool accept() {
-        return accept(state);
-    }
-};
-
-class PalindromeRecognizer : public StateMachine {
     int getInitialState() {
         return 0;
     }
@@ -176,6 +109,26 @@ class PalindromeRecognizer : public StateMachine {
     bool accept(int state) {
         return state == 200;
     }
+
+public:
+    void reset() {
+        state = getInitialState();
+    }
+
+    Transition getNext(Symbol symbolRead) {
+        auto transition = getNext(state, symbolRead);
+        state = transition.state;
+
+        return transition;
+    }
+
+    bool reject() {
+        return reject(state);
+    }
+
+    bool accept() {
+        return accept(state);
+    }
 };
 
 class Band {
@@ -234,10 +187,10 @@ public:
 class TuringMachine {
 private:
     Band* band;
-    StateMachine* stateMachine;
+    PalindromeRecognizer* stateMachine;
 
 public:
-    TuringMachine(StateMachine* stateMachine, Band* band) {
+    TuringMachine(PalindromeRecognizer* stateMachine, Band* band) {
         this->stateMachine = stateMachine;
         this->stateMachine->reset();
         this->band = band;
@@ -265,20 +218,4 @@ bool test(int input) {
 
     TuringMachine machine(&program, &band);
     return machine.run();
-}
-
-int main() {
-    resetTestData();
-
-    auto t1 = high_resolution_clock::now();
-    for (int i = 0; i < CASES; i++) {
-        if (test(inputs[i]) != results[i]) {
-            cout << i << ": " << inputs[i] << ", " << results[i] << " -> "<< "FAIL" << endl;
-        }
-    }
-    auto t2 = high_resolution_clock::now();
-
-    duration<double, std::milli> ms = t2 - t1;
-    cout << ms.count() << " ms, " << (ms.count() / CASES) << " ms/case" << endl;
-
 }
