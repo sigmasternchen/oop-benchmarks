@@ -38,15 +38,30 @@ void resetTestData() {
 int main() {
     resetTestData();
 
-    auto t1 = high_resolution_clock::now();
+    double sum = 0;
+    double sum_squared = 0;
+
     for (int i = 0; i < CASES; i++) {
-        if (test(inputs[i]) != results[i]) {
+        auto t1 = high_resolution_clock::now();
+        bool result = test(inputs[i]);
+        auto t2 = high_resolution_clock::now();
+
+        if (result != results[i]) {
             cout << i << ": " << inputs[i] << ", " << results[i] << " -> "<< "FAIL" << endl;
         }
-    }
-    auto t2 = high_resolution_clock::now();
 
-    duration<double, std::milli> ms = t2 - t1;
-    cout << ms.count() << " ms, " << (ms.count() / CASES) << " ms/case" << endl;
+        duration<double, std::milli> ms = t2 - t1;
+        double tmp = ms.count();
+
+        sum += tmp;
+        sum_squared += tmp * tmp;
+    }
+
+    double mu = sum / CASES;
+
+    // from https://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
+    double sigma = sqrt(CASES * sum_squared - sum * sum) / CASES;
+
+    cout << "mu = " << mu << " ms, sigma = " << sigma << " ms\n";
 
 }
