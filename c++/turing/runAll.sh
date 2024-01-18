@@ -3,15 +3,16 @@
 run() {
   test="$1"
   optimization="$2"
+  repeats="$3"
 
-  clang++ -std=c++14 -O"$optimization" "benchmark.cpp" "$1.cpp"
-  echo "$test $optimization: "
+  clang++ -std=c++14 -DREPEATS="$repeats" -O"$optimization" "benchmark.cpp" "$1.cpp"
+  echo "$test $optimization (n = $repeats): "
   ./a.out
 }
 
 runOpt() {
-  run "$1" 0
-  run "$1" 3
+  run "$1" 0 1000
+  run "$1" 3 20000
 }
 
 runOpt "oop-with-virtual-methods"

@@ -41,14 +41,15 @@ int main() {
     double sum = 0;
     double sum_squared = 0;
 
-    for (int i = 0; i < CASES; i++) {
+    for (int r = 0; r < REPEATS; r++) {
         auto t1 = high_resolution_clock::now();
-        bool result = test(inputs[i]);
-        auto t2 = high_resolution_clock::now();
-
-        if (result != results[i]) {
-            cout << i << ": " << inputs[i] << ", " << results[i] << " -> "<< "FAIL" << endl;
+        for (int i = 0; i < CASES; i++) {
+            bool result = test(inputs[i]);
+            if (result != results[i]) {
+                cout << i << ": " << inputs[i] << ", " << results[i] << " -> " << "FAIL" << endl;
+            }
         }
+        auto t2 = high_resolution_clock::now();
 
         duration<double, std::milli> ms = t2 - t1;
         double tmp = ms.count();
@@ -57,10 +58,9 @@ int main() {
         sum_squared += tmp * tmp;
     }
 
-    double mu = sum / CASES;
-
+    double mu = sum / REPEATS;
     // from https://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
-    double sigma = sqrt(CASES * sum_squared - sum * sum) / CASES;
+    double sigma = sqrt((REPEATS * sum_squared - sum * sum) / (REPEATS * (static_cast<double>(REPEATS) - 1)));
 
     cout << "mu = " << mu << " ms, sigma = " << sigma << " ms\n";
 
