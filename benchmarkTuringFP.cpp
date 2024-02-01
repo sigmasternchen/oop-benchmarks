@@ -9,7 +9,8 @@ using namespace std::chrono;
 #define CASES (100000)
 #define MAX_VALUE (0xffff)
 
-#define MAX_BAND_SIZE (MAX_VALUE + 1)
+// depends on max value
+#define MAX_BAND_SIZE (16 + 1)
 
 #define SEED (1337)
 

@@ -15,6 +15,6 @@ runOpt() {
 }
 
 runOpt "OOP"
-runOpt "FP"
+#runOpt "FP"
 runOpt "SP"
 runOpt "SPnoTuples"
